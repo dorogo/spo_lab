@@ -1,0 +1,6 @@
+lang: (expr)*
+expr: declare | assign
+declare: VAR_KW VAR
+assign: VAR ASSIGN_OP smth
+smth: smth_unit (OP smth_unit)*
+sth_unit: DIGIT | VAR
