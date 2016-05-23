@@ -4,11 +4,23 @@ public class Token {
     private String name;
     private String value;
     private int numLine;
+    private int opPriority;
 
     public Token(String name, String value, int numLine) {
         this.name = name;
         this.value = value;
         this.numLine = numLine;
+        
+        //create opPrio
+        if(this.name.equals(Lexer.ASSIGN_OP)){
+        	this.opPriority = 0;
+        } else if (this.name.equals(Lexer.ADD_OP) || this.name.equals(Lexer.DEC_OP) ) {
+        	this.opPriority = 1;
+        } else if (this.name.equals(Lexer.MULTI_OP) ) {
+        	this.opPriority = 2;
+        } else {
+        	this.opPriority = -1;
+        }
     }
 
     public String getName() {
@@ -34,7 +46,14 @@ public class Token {
     public void setNumLine(int ln) {
         this.numLine = ln;
     }
+    
+    public int getOpPriority() {
+        return this.opPriority;
+    }
 
+    public void setOpPriority(int i) {
+        this.opPriority = i;
+    }
     @Override
     public String toString() {
         return ("Token{name=\'" + name + "\'value=\'" + value + "\'}");

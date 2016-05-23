@@ -28,5 +28,9 @@ public class Test {
         Parser parser = new Parser();
         parser.setTokens(tokens);
         parser.lang();
+        List<PostfixToken> postfixTokens = parser.getPoliz();
+        PolizProcessor polizProc = new PolizProcessor(postfixTokens);
+        polizProc.calcPoliz();
+        
     }
 }

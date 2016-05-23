@@ -1,7 +1,10 @@
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Queue;
+import java.util.Stack;
 
 public class Parser {
 
@@ -16,9 +19,6 @@ public class Parser {
 
     public void lang() throws Exception {
         boolean activated = false;
-        
-        
-        
 //            System.out.println("Tokens in Parser.java:");
 //            for (Token token: tokens) {
 //            	System.out.println(token);
@@ -47,9 +47,7 @@ public class Parser {
         return true;
     }
 
-    private boolean sm() {
-        return currentToken.getName().equals(Lexer.SM);
-    }
+    
 
     private boolean declare() throws Exception {
         if (varKw()) {
@@ -120,6 +118,10 @@ public class Parser {
     private boolean op() {
         return (currentToken.getName().equals(Lexer.ADD_OP) || currentToken.getName().equals(Lexer.DEC_OP) || currentToken.getName().equals(Lexer.MULTI_OP));
     }
+    
+    private boolean sm() {
+        return currentToken.getName().equals(Lexer.SM);
+    }
 
     private boolean nextToken() {
         while (iteratorTokens.hasNext()) {
@@ -130,5 +132,48 @@ public class Parser {
         }
         return false;
     }
+
+	public List<PostfixToken> getPoliz() {
+		List<PostfixToken> poliz = new ArrayList<PostfixToken>();
+		Stack<PostfixToken> stack = new Stack<PostfixToken>();
+		int lastOpPriority = 0;
+		iteratorTokens = this.tokens.iterator();
+		PostfixToken tmp;
+		
+		while(nextToken()) {
+			if(smthUnit()) {
+				poliz.add(new PostfixToken(currentToken.getName(), currentToken.getValue()));
+			} else if (op() || assignOp()) {
+//				if(currentToken.getOpPriority() <= lastOpPriority) {		
+				if(!stack.empty()){
+					while (currentToken.getOpPriority() <= lastOpPriority) {
+						tmp = stack.pop();
+						poliz.add(tmp);
+						tmp = stack.pop();
+						lastOpPriority = tmp.getOpPriority();
+						if(currentToken.getOpPriority() > lastOpPriority)
+							stack.push(tmp);
+					}
+				}
+//				}
+				stack.push(new PostfixToken(currentToken.getName(), currentToken.getValue()));
+				lastOpPriority = currentToken.getOpPriority();
+				System.out.println("added "+lastOpPriority);
+			} else if (sm()) {
+				while (!stack.empty()) {
+					poliz.add(stack.pop());
+				}
+			}
+		}
+		//outupt poliz
+		System.out.print("Poliz of curr file: ");
+		for(int q = 0; q < poliz.size(); q++){
+			System.out.print(poliz.get(q).getValue());
+
+		}
+		
+		return poliz;
+	}
+	
 
 }
