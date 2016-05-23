@@ -16,6 +16,7 @@ public class Parser {
 
     public void lang() throws Exception {
         boolean activated = false;
+        
 //            System.out.println("Tokens in Parser.java:");
 //            for (Token token: tokens) {
 //            	System.out.println(token);
@@ -39,7 +40,7 @@ public class Parser {
 
     private boolean expr() throws Exception {
         if (!(declare() || assign())) {
-            here fix comments 
+           // here fix comments 
             throw new Exception("Error at line:"+currentToken.getNumLine() +".\n\t\t \"declare or assign\" expected");//, but \""+currentToken+"\" found.");
         }
         return true;
