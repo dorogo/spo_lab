@@ -1,5 +1,5 @@
 var value;
 var count;
-value = 5;
-count = 100;
-value = count - 100+5-value*2;
+value = 1;
+count = 2;
+value = 6 -(5*(2 -value))*2;

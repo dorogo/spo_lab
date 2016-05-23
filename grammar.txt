@@ -2,5 +2,21 @@ lang: (expr)*
 expr: declare | assign
 declare: VAR_KW VAR
 assign: VAR ASSIGN_OP smth
+smth: operand (OP operand)*
+operand: '('  (operand | smth_unit)+ ')' | smth_unit
+smth_unit: DIGIT | VAR
+
+lang: (expr)*
+expr: declare | assign
+declare: VAR_KW VAR
+assign: VAR ASSIGN_OP smth
 smth: smth_unit (OP smth_unit)*
 sth_unit: DIGIT | VAR
+
+value65value-2*-=
+
+var value;
+var count;
+value = 1;
+count = 2;
+value = 6 -(5-value)*2;

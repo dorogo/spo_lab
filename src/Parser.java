@@ -1,9 +1,7 @@
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Queue;
 import java.util.Stack;
 
 public class Parser {
@@ -19,11 +17,7 @@ public class Parser {
 
     public void lang() throws Exception {
         boolean activated = false;
-//            System.out.println("Tokens in Parser.java:");
-//            for (Token token: tokens) {
-//            	System.out.println(token);
-//            }
-
+        
         while (nextToken()) {
             if (expr()) {
                 if (!sm()) {
@@ -81,15 +75,15 @@ public class Parser {
     }
 
     private boolean smth() throws Exception {
-        if (smthUnit()) {
+        if (operand()) {
             nextToken();
             if (op()) {
                 do {
                     nextToken();
-                    if (smthUnit()) {
+                    if (operand()) {
                         nextToken();
                     } else {
-                        throw new Exception("Error at line:"+currentToken.getNumLine() +".\n\t\t \"digit or var name\" expected, but \"" + currentToken + "\" found.");
+                        //throw new Exception("Error at line:"+currentToken.getNumLine() +".\n\t\t \"digit or var name\" expected, but \"" + currentToken + "\" found.");
                     }
                 } while (!currentToken.getName().equals(Lexer.SM));
             }
@@ -97,6 +91,37 @@ public class Parser {
             throw new Exception("Error at line:"+currentToken.getNumLine() +".\n\t\t \"digit or var name\" expected, but \"" + currentToken + "\" found.");
         }
         return true;
+    }
+    
+    private boolean operand() throws Exception{
+//        if (bracketOpen()) {
+//            nextToken();
+//            if(smthUnit() || operand()){
+//                nextToken();
+//                while (!bracketClose()) {
+//                    if (op()) {
+//                        nextToken();
+//                        if(smthUnit() || operand()) {
+//                            nextToken();
+//                        }
+//
+//                    }
+//                }
+//            }
+//        } else if (smthUnit()) {
+//           return true;
+//        } else {
+//            throw new Exception("errrrror. w8ing operand" + currentToken);
+//        }
+        return true;
+    }
+    
+    private boolean bracketOpen() {
+        return currentToken.getName().equals(Lexer.BRACKET_OPEN);
+    }
+    
+    private boolean bracketClose() {
+        return currentToken.getName().equals(Lexer.BRACKET_CLOSE);
     }
 
     private boolean smthUnit() {
@@ -144,18 +169,13 @@ public class Parser {
 			if(smthUnit()) {
 				poliz.add(new PostfixToken(currentToken.getName(), currentToken.getValue()));
 			} else if (op() || assignOp()) {
-//				if(currentToken.getOpPriority() <= lastOpPriority) {		
 				if(!stack.empty()){
 					while (currentToken.getOpPriority() <= lastOpPriority) {
 						tmp = stack.pop();
 						poliz.add(tmp);
-						tmp = stack.pop();
-						lastOpPriority = tmp.getOpPriority();
-						if(currentToken.getOpPriority() > lastOpPriority)
-							stack.push(tmp);
+                                                lastOpPriority = stack.peek().getOpPriority();
 					}
 				}
-//				}
 				stack.push(new PostfixToken(currentToken.getName(), currentToken.getValue()));
 				lastOpPriority = currentToken.getOpPriority();
 				System.out.println("added "+lastOpPriority);
@@ -163,15 +183,24 @@ public class Parser {
 				while (!stack.empty()) {
 					poliz.add(stack.pop());
 				}
-			}
-		}
+			} else if (bracketOpen()) {
+                            stack.push(new PostfixToken(currentToken.getName(), currentToken.getValue()));
+                            lastOpPriority = currentToken.getOpPriority();
+                        }else if (bracketClose()) {
+                            tmp = stack.pop();
+                            while (!tmp.getName().equals(Lexer.BRACKET_OPEN)) {
+                                poliz.add(tmp);
+                                tmp = stack.pop();
+                            }
+                            lastOpPriority = stack.peek().getOpPriority();
+                        }
+                }
 		//outupt poliz
 		System.out.print("Poliz of curr file: ");
 		for(int q = 0; q < poliz.size(); q++){
 			System.out.print(poliz.get(q).getValue());
 
 		}
-		
 		return poliz;
 	}
 	
