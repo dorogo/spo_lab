@@ -39,7 +39,6 @@ public class Parser {
 
     private boolean expr() throws Exception {
         if (!(declare() || assign())) {
-            here fix comments 
             throw new Exception("Error at line:"+currentToken.getNumLine() +".\n\t\t \"declare or assign\" expected");//, but \""+currentToken+"\" found.");
         }
         return true;
