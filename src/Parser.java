@@ -17,6 +17,8 @@ public class Parser {
     public void lang() throws Exception {
         boolean activated = false;
         
+        
+        
 //            System.out.println("Tokens in Parser.java:");
 //            for (Token token: tokens) {
 //            	System.out.println(token);
