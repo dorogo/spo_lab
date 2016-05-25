@@ -94,7 +94,7 @@ public class Lexer {
                     + "\t\t\t" + errStrTmp + "^\n");
         } else {
             tokens.add(new Token(currentLucky, accum, numCurrLine));
-            System.out.println("TOKEN(" + currentLucky + ") recognized with value : " + accum);
+//            System.out.println("TOKEN(" + currentLucky + ") recognized with value : " + accum);
             accum = "";
             currentLucky = null;
         }
@@ -108,7 +108,7 @@ public class Lexer {
         }
 
         if (currentLucky != null && !found) {
-            System.out.println("TOKEN(" + currentLucky + ") recognized with value : " + accum.substring(0, accum.length() - 1));
+//            System.out.println("TOKEN(" + currentLucky + ") recognized with value : " + accum.substring(0, accum.length() - 1));
             tokens.add(new Token(currentLucky, accum.substring(0, accum.length() - 1),numCurrLine));
             i--;
             accum = "";
