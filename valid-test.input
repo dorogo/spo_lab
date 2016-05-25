@@ -3,5 +3,5 @@ var count;
 value = 1;
 count = 2;
 value = (6+  (3 -2* count -(5 +(3 *(2 - value))))*2);
-count = 0 -  value;
-qweqw = value  ;
+count = value;
+qweqw = value +count ;

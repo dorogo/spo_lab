@@ -8,14 +8,14 @@ public class PolizProcessor {
 
     private Stack<Object> stack;
     private Map<String, Integer> varMap;
-    private List<PostfixToken> poliz;
-    PostfixToken currentPfxToken;
+    private List<Token> poliz;
+    Token currentPfxToken;
     int index;
     int size;
     int tmpValue1;
     Object tmpValue2;
 
-    public PolizProcessor(List<PostfixToken> srcPoliz) {
+    public PolizProcessor(List<Token> srcPoliz) {
         varMap = new HashMap<String, Integer>();
         stack = new Stack<Object>();
         this.poliz = srcPoliz;

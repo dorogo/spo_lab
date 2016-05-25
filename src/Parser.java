@@ -174,15 +174,15 @@ public class Parser {
         return false;
     }
 
-    public List<PostfixToken> getPoliz() throws Exception{
-        List<PostfixToken> poliz = new ArrayList<PostfixToken>();
-        Stack<PostfixToken> stack = new Stack<PostfixToken>();
+    public List<Token> getPoliz() throws Exception{
+        List<Token> poliz = new ArrayList<Token>();
+        Stack<Token> stack = new Stack<Token>();
         int lastOpPriority = 0;
         iteratorTokens = this.tokens.iterator();
 
         while (nextToken()) {
             if (smthUnit()) {
-                poliz.add(new PostfixToken(currentToken.getName(), currentToken.getValue()));
+                poliz.add(currentToken);
             } else if (op() || assignOp()) {
                 if (!stack.empty()) {
                     while (currentToken.getOpPriority() <= lastOpPriority) {
@@ -190,19 +190,20 @@ public class Parser {
                         lastOpPriority = stack.peek().getOpPriority();
                     }
                 }
-                stack.push(new PostfixToken(currentToken.getName(), currentToken.getValue()));
+                stack.push(currentToken);
                 lastOpPriority = currentToken.getOpPriority();
             } else if (sm()) {
                 while (!stack.empty()) {
                     poliz.add(stack.pop());
                 }
             } else if (bracketOpen()) {
-                stack.push(new PostfixToken(currentToken.getName(), currentToken.getValue()));
+                stack.push(currentToken);
                 lastOpPriority = currentToken.getOpPriority();
             } else if (bracketClose()) {
-                while (stack.peek().getName().equals(Lexer.BRACKET_OPEN)) {
+                while (!stack.peek().getName().equals(Lexer.BRACKET_OPEN)) {
                     poliz.add(stack.pop());
                 }
+                stack.pop();
                 lastOpPriority = stack.peek().getOpPriority();
             }
         }
