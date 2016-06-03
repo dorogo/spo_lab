@@ -19,6 +19,7 @@ public class Lexer {
     public static final String ADD_OP = "ADD_OP";
     public static final String DEC_OP = "DEC_OP";
     public static final String MULTI_OP = "MULTI_OP";
+    public static final String DIV_OP = "DIV_OP";
     public static final String DIGIT = "DIGIT";
     public static final String VAR_NAME = "VAR_NAME";
     public static final String WS = "WS";
@@ -34,6 +35,7 @@ public class Lexer {
     private Pattern addOp = Pattern.compile("^\\+$");
     private Pattern decOp = Pattern.compile("^\\-$");
     private Pattern multOp = Pattern.compile("^\\*$");
+    private Pattern divOp = Pattern.compile("^\\/$");
     private Pattern digit = Pattern.compile("^0|[1-9]{1}[0-9]*$");
     private Pattern var = Pattern.compile("^[a-zA-Z]*$");
     private Pattern ws = Pattern.compile("^\\s*$");
@@ -58,6 +60,7 @@ public class Lexer {
         regularTerminals.put(Lexer.ADD_OP, addOp);
         regularTerminals.put(Lexer.DEC_OP, decOp);
         regularTerminals.put(Lexer.MULTI_OP, multOp);
+        regularTerminals.put(Lexer.DIV_OP, divOp);
         regularTerminals.put(Lexer.DIGIT, digit);
         regularTerminals.put(Lexer.VAR_NAME, var);
         regularTerminals.put(Lexer.WS, ws);
