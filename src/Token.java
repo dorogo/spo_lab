@@ -5,6 +5,10 @@ public class Token {
     private String value;
     private int numLine;
     private int opPriority;
+    
+    public Token() {
+        
+    }
 
     public Token(String name, String value, int numLine) {
         this.name = name;
@@ -56,7 +60,7 @@ public class Token {
     }
     @Override
     public String toString() {
-        return ("Token{name=\'" + name + "\'value=\'" + value + "\'}");
+        return ("Token{ name=\'" + name + "\'value=\'" + value + "\' }");
     }
 
 }

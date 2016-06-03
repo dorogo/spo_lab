@@ -1,7 +1,32 @@
 lang: (expr)*
-expr: declare | assign
+expr: declare | assign | forExpr | switchExpr
+switchExpr: SWITCH_KW switch_head switch_body
+switch_head: BRACKET_OPEN smth_unit BRACKET_CLOSE
+switch_body: FBRACKET_OPEN (case_block)+ FBRACKET_CLOSE
+case_block:CASE_KW smth_unit CL case_body BREAK_KW SW
+case_body: declare | assign 
 declare: VAR_KW VAR
+forExpr: FOR_KW for_head for_body
+for_head: BRACKET_OPEN (assign|VAR) SW for_limit SW assign BRACKET_CLOSE
+for_limit: smth_unit COMPARING_OP smth_unit
+for_body:FBRACKET_OPEN (expr)* FBRACKET_CLOSE
 assign: VAR ASSIGN_OP smth
 smth: operand (OP operand)*
-operand: '('  (operand | smth_unit)+ ')' | smth_unit
+operand: BRACKET_OPEN  (operand | smth_unit)+ BRACKET_CLOSE | smth_unit
 smth_unit: DIGIT | VAR
+
+DIGIT:^0|[1-9]{1}[0-9]*$
+VAR:^[a-zA-Z]*$
+VAR_KW:^var$
+OP:^'-'|'+'|'/'|'*'$
+ASSIGN_OP:^=$
+BRACKET_OPEN:^($
+BRACKET_CLOSE:^)$
+FOR_KW:^for$
+SW:^;$
+COMPARING_OP:^'>'|'<'|'=='|'<='|'>='|'!='$
+FBRACKET_OPEN:^{$
+FBRACKET_CLOSE:^}$
+CASE_KW:^case$
+BREAK_KW:^break$
+CL:^:$
