@@ -15,14 +15,16 @@ public class Lexer {
 
     public static final String VAR_KW = "VAR_KW";
     public static final String SM = "SM";
-    
     public static final String ASSIGN_OP = "ASSIGN_OP";
     public static final String ADD_OP = "ADD_OP";
     public static final String DEC_OP = "DEC_OP";
     public static final String MULTI_OP = "MULTI_OP";
+    public static final String DIV_OP = "DIV_OP";
     public static final String DIGIT = "DIGIT";
     public static final String VAR_NAME = "VAR_NAME";
     public static final String WS = "WS";
+    public static final String BRACKET_OPEN = "BRACKET_OPEN";
+    public static final String BRACKET_CLOSE = "BRACKET_CLOSE";
 
     String accum = "";
 
@@ -33,9 +35,12 @@ public class Lexer {
     private Pattern addOp = Pattern.compile("^\\+$");
     private Pattern decOp = Pattern.compile("^\\-$");
     private Pattern multOp = Pattern.compile("^\\*$");
+    private Pattern divOp = Pattern.compile("^\\/$");
     private Pattern digit = Pattern.compile("^0|[1-9]{1}[0-9]*$");
     private Pattern var = Pattern.compile("^[a-zA-Z]*$");
     private Pattern ws = Pattern.compile("^\\s*$");
+    private Pattern bracketOpen = Pattern.compile("^\\($");
+    private Pattern bracketClose = Pattern.compile("^\\)$");
 
     private Map<String, Pattern> keyWordsMap = new HashMap<String, Pattern>();
     private Map<String, Pattern> regularTerminals = new HashMap<String, Pattern>();
@@ -55,9 +60,12 @@ public class Lexer {
         regularTerminals.put(Lexer.ADD_OP, addOp);
         regularTerminals.put(Lexer.DEC_OP, decOp);
         regularTerminals.put(Lexer.MULTI_OP, multOp);
+        regularTerminals.put(Lexer.DIV_OP, divOp);
         regularTerminals.put(Lexer.DIGIT, digit);
         regularTerminals.put(Lexer.VAR_NAME, var);
         regularTerminals.put(Lexer.WS, ws);
+        regularTerminals.put(Lexer.BRACKET_OPEN, bracketOpen);
+        regularTerminals.put(Lexer.BRACKET_CLOSE, bracketClose);
     }
 
     public void processFile(String fileName) throws IOException {
@@ -89,7 +97,7 @@ public class Lexer {
                     + "\t\t\t" + errStrTmp + "^\n");
         } else {
             tokens.add(new Token(currentLucky, accum, numCurrLine));
-            System.out.println("TOKEN(" + currentLucky + ") recognized with value : " + accum);
+//            System.out.println("TOKEN(" + currentLucky + ") recognized with value : " + accum);
             accum = "";
             currentLucky = null;
         }
@@ -103,7 +111,7 @@ public class Lexer {
         }
 
         if (currentLucky != null && !found) {
-            System.out.println("TOKEN(" + currentLucky + ") recognized with value : " + accum.substring(0, accum.length() - 1));
+//            System.out.println("TOKEN(" + currentLucky + ") recognized with value : " + accum.substring(0, accum.length() - 1));
             tokens.add(new Token(currentLucky, accum.substring(0, accum.length() - 1),numCurrLine));
             i--;
             accum = "";
@@ -127,5 +135,5 @@ public class Lexer {
     public List<Token> getTokens() {
         return tokens;
     }
-
+    
 }
