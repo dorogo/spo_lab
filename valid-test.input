@@ -2,6 +2,25 @@ var value;
 var count;
 value = 1;
 count = 2;
+t = 0;
+i = 0;
+w = 0;
+for (i ; i < 3 ; i = i +1 ) {
+    t = t + 1;
+    for(q =0 ; q <= 2; q = q +1 ) {
+        w = w - 1;
+    }
+}
+switch (w) {
+    case 1 :
+        i = i +10;
+    break;
+    case w :
+        i = i *10;
+    break;
+}
+tmp = 1;
+testVar = 2- (tmp - 3)*2 +8;
 value = (6+  (3 -2* count -(5 +(3 *(2 - value))))*2);
 count = value;
-qweqw = value +count ;
+qweqw = value +testVar;
