@@ -16,7 +16,7 @@ public class Token {
         	this.opPriority = 0;
         } else if (this.name.equals(Lexer.ADD_OP) || this.name.equals(Lexer.DEC_OP) ) {
         	this.opPriority = 1;
-        } else if (this.name.equals(Lexer.MULTI_OP) ) {
+        } else if (this.name.equals(Lexer.MULTI_OP) || this.name.equals(Lexer.DIV_OP) ) {
         	this.opPriority = 2;
         } else {
         	this.opPriority = -1;

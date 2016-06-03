@@ -40,11 +40,14 @@ public class PolizProcessor {
                 stack.push(getOperand(stack.pop()) - tmpValue1);
             } else if (currentPfxToken.getName().equals(Lexer.MULTI_OP)) {
                 stack.push(getOperand(stack.pop()) * getOperand(stack.pop()));
+            } else if (currentPfxToken.getName().equals(Lexer.DIV_OP)) {
+            	tmpValue1 = getOperand(stack.pop());
+                stack.push(getOperand(stack.pop())/ tmpValue1);
             }
 //			System.out.println(stack);
             index++;
         }
-        System.out.println("\n" + varMap);
+        System.out.print("\n\nvar map:" + varMap);
     }
 
     private int getOperand(Object tmp) throws Exception {

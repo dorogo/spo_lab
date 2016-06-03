@@ -157,7 +157,7 @@ public class Parser {
     }
 
     private boolean op() {
-        return (currentToken.getName().equals(Lexer.ADD_OP) || currentToken.getName().equals(Lexer.DEC_OP) || currentToken.getName().equals(Lexer.MULTI_OP));
+        return (currentToken.getName().equals(Lexer.ADD_OP) || currentToken.getName().equals(Lexer.DEC_OP) || currentToken.getName().equals(Lexer.MULTI_OP) ||  currentToken.getName().equals(Lexer.DIV_OP));
     }
 
     private boolean sm() {
@@ -207,7 +207,7 @@ public class Parser {
                 lastOpPriority = stack.peek().getOpPriority();
             }
         }
-        //outupt poliz
+        //output poliz
         System.out.print("Poliz of curr file: ");
         for (int q = 0; q < poliz.size(); q++) {
             System.out.print(poliz.get(q).getValue());
