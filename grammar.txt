@@ -1,5 +1,8 @@
 lang: (expr)*
-expr: declare | assign | forExpr | switchExpr
+expr: declare | assign | forExpr | switchExpr | structExpr
+structExpr: STRUCT_KW struct_head struct_body
+struct_head: VAR ASSIGN_OP
+struct_body: FBRACKET_OPEN (asssign)* FBRACKET_CLOSE
 switchExpr: SWITCH_KW switch_head switch_body
 switch_head: BRACKET_OPEN smth_unit BRACKET_CLOSE
 switch_body: FBRACKET_OPEN (case_block)+ FBRACKET_CLOSE
@@ -13,7 +16,8 @@ for_body:FBRACKET_OPEN (expr)* FBRACKET_CLOSE
 assign: VAR ASSIGN_OP smth
 smth: operand (OP operand)*
 operand: BRACKET_OPEN  (operand | smth_unit)+ BRACKET_CLOSE | smth_unit
-smth_unit: DIGIT | VAR
+smth_unit: DIGIT | VAR 
+struct_var: VAR DOT_OP VAR
 
 DIGIT:^0|[1-9]{1}[0-9]*$
 VAR:^[a-zA-Z]*$
@@ -30,3 +34,5 @@ FBRACKET_CLOSE:^}$
 CASE_KW:^case$
 BREAK_KW:^break$
 CL:^:$
+STRUCT_KW:^struct$
+DOT_OP:^\\.$

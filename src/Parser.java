@@ -1,22 +1,21 @@
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
-import sun.misc.Queue;
 
 public class Parser {
 
     private List<Token> tokens;
-    private Iterator<Token> iteratorTokens;
+    private MyIterator<Token> iteratorTokens;
     private Token currentToken;
     private boolean forCompleted = false;
     private boolean switchCompleted = false;
+    private boolean structCompleted = false;
 
     public void setTokens(List<Token> tokens) {
         this.tokens = tokens;
-        iteratorTokens = this.tokens.iterator();
+        iteratorTokens = new MyIterator<>(tokens.listIterator());
     }
 
     public void lang() throws Exception {
@@ -29,6 +28,8 @@ public class Parser {
                         forCompleted = false;
                     } else if (switchCompleted) {
                         switchCompleted = false;
+                    } else if (structCompleted) {
+                        structCompleted = false;
                     } else {
                         throw new Exception("\n\t\tError at line:" + (currentToken.getNumLine() - 1) + ".\n\t\t Missing \";\". ");
                     }
@@ -46,9 +47,61 @@ public class Parser {
     }
 
     private boolean expr() throws Exception {
-        if (!(declare() || assign() || forExpr() || switchExpr())) {
+        if (!(declare() || assign() || forExpr() || switchExpr() || structExpr())) {
             throw new Exception("\n\t\tError at line:" + currentToken.getNumLine() + ".\n\t\t \"declare or assign\" expected, but \""
                     + currentToken.getValue() + "\" found.");
+        }
+        return true;
+    }
+    
+    private boolean structExpr() throws Exception {
+        if (structKw()) {
+            nextToken();
+            if (structHead()) {
+                nextToken();
+                if (!structBody()) {
+                    throw new Exception("\n\t\tError at line:" + currentToken.getNumLine() + ".\n\t\t \"struct body\" expected, but \""
+                    + currentToken.getValue() + "\" found.");
+                }
+            } else {
+                throw new Exception("\n\t\tError at line:" + currentToken.getNumLine() + ".\n\t\t \"struct head\" expected, but \""
+                    + currentToken.getValue() + "\" found.");
+            }
+        } else {
+            return false;
+        }
+        structCompleted = true;
+        return true;
+    }
+    
+    private boolean structBody() throws Exception {
+        if (fBracketOpen()) {
+            nextToken();
+            while (!fBracketClose()) {                
+                if (assign()) {
+                    if (sm()) {
+                        nextToken();
+                    } 
+                } else {
+                    throw new Exception("\n\t\tError at line:" + currentToken.getNumLine() + ".\n\t\t \"assign\" expected, but \""
+                    + currentToken.getValue() + "\" found.");
+                }
+            }
+        } else {
+            return false;
+        }
+        return true;
+    }
+    
+    private boolean structHead() throws Exception {
+        if (varName()) {
+            nextToken();
+            if (!assignOp()) {
+                throw new Exception("\n\t\tError at line:" + currentToken.getNumLine() + ".\n\t\t \"assign op\" expected, but \""
+                    + currentToken.getValue() + "\" found.");
+            }
+        } else {
+            return false;
         }
         return true;
     }
@@ -264,7 +317,10 @@ public class Parser {
     }
 
     private boolean assign() throws Exception {
-        if (varName()) {
+        if (smthUnit()) {
+            if (digit()) {
+                throw new Exception("\n\t\tError at line:" + currentToken.getNumLine() + ". Digit is not aviable like var name.");
+            }
             nextToken();
             if (assignOp()) {
                 nextToken();
@@ -274,8 +330,6 @@ public class Parser {
                 }
             } else {
                 return false;
-//                throw new Exception("\n\t\tError at line:" + currentToken.getNumLine() + ".\n\t\t \"assign op\" expected, but \""
-//                        + currentToken.getValue() + "\" found.");
             }
         } else {
             return false;
@@ -346,8 +400,33 @@ public class Parser {
         return currentToken.getName().equals(Lexer.BRACKET_CLOSE);
     }
 
-    private boolean smthUnit() {
-        return (currentToken.getName().equals(Lexer.DIGIT) || currentToken.getName().equals(Lexer.VAR_NAME));
+    private boolean smthUnit() throws Exception{
+        if (varName()) {
+                nextToken();
+                if(dotOp()) {
+                    nextToken();
+                    if(!varName()){
+                        throw new Exception("\n\t\tError at line:" + currentToken.getNumLine()
+                                    + ".\n\t\t \"varName\" expected, but \"" + currentToken.getValue() + "\" found.");
+                    }
+                } else if (iteratorTokens.hasPrevious()) {
+                    do {
+                        currentToken = iteratorTokens.previous();
+                    } while (iteratorTokens.hasPrevious()&& currentToken.getName().equals(Lexer.WS));
+                }
+        } else if (!digit()) {
+            return false;
+        }
+        return true;
+    }
+    
+    
+    private boolean dotOp() {
+        return currentToken.getName().equals(Lexer.DOT_OP);
+    }
+
+    private boolean digit() {
+        return currentToken.getName().equals(Lexer.DIGIT);
     }
 
     private boolean varName() {
@@ -405,12 +484,15 @@ public class Parser {
         return currentToken.getName().equals(Lexer.CL);
     }
 
+    private boolean structKw() {
+        return currentToken.getName().equals(Lexer.STRUCT_KW);
+    }
+    
     private boolean nextToken() throws Exception {
         if (iteratorTokens.hasNext()) {
             do {
                 currentToken = iteratorTokens.next();
             } while (iteratorTokens.hasNext() && currentToken.getName().equals(Lexer.WS));
-//            System.out.println(currentToken);
             return true;
         }
         return false;
@@ -426,28 +508,32 @@ public class Parser {
         boolean isFor = false;
         boolean isSwitch = false;
         boolean isSwitchInit = false;
+        boolean isStruct = false;
         Token tmp = new Token();
         int countCases = 0;
         
         int lastOpPriority = 0;
-        iteratorTokens = this.tokens.iterator();
+        iteratorTokens = new MyIterator<>(tokens.listIterator());
 
         while (nextToken()) {
-            if (smthUnit() ) {
+            if (digit() || varName()) {
                 poliz.add(currentToken);
-            } else if (op() || assignOp() || comparingOp()) {
-                if (!stack.empty()) {
-                    while (currentToken.getOpPriority() <= lastOpPriority) {
+            } else if (op() || assignOp() || comparingOp() || dotOp()) {
+                
+                    while (!stack.empty() && (currentToken.getOpPriority() <= lastOpPriority)) {
                         poliz.add(stack.pop());
-                        lastOpPriority = stack.peek().getOpPriority();
+                        if (!stack.empty()) {
+                            lastOpPriority = stack.peek().getOpPriority();
+                        } 
                     }
-                }
+                
                 stack.push(currentToken);
                 lastOpPriority = currentToken.getOpPriority();
             } else if (sm()) {
                 while (!stack.empty() && !stack.peek().getName().equals(Lexer.BRACKET_OPEN)) {
                     poliz.add(stack.pop());
                 }
+                lastOpPriority = -1;
                 if (searchAdrAfterLimitFor){
                     searchAdrAfterLimitFor = false;
                     poliz.add(new Token(Lexer.ADRESS, "0", -1));
@@ -484,6 +570,9 @@ public class Parser {
                         adrList.add(poliz.size()-1);
                         countCases--;
                     }
+                } else if (isStruct) {
+                    isStruct = false;
+                    poliz.add(currentToken);
                 } else {
                     poliz.add(new Token(Lexer.ADRESS, "0", -1));
                     poliz.add(new Token(Lexer.GO, null, -1));
@@ -507,6 +596,9 @@ public class Parser {
                 countCases++;
                 poliz.add(new Token(Lexer.ADRESS, "-1", -1));
                 poliz.add(new Token(Lexer.GO, null, -1));
+            } else if (structKw()) {
+                poliz.add(currentToken);
+                isStruct = true;
             }
         }
         
@@ -526,8 +618,6 @@ public class Parser {
             System.out.print(poliz.get(q).getValue());
 
         }
-        System.out.println("\nadr"+adrStack);
         return poliz;
     }
-
 }
