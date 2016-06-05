@@ -8,6 +8,7 @@ public class PolizProcessor {
 
     private Stack<Object> stack;
     private Map<String, Integer> varMap;
+    private Map<String, HashMap<String, Integer>> varMapStruct;
 //    private Map<Integer, HashMap> varMap;
     private List<Token> poliz;
     private Token currentToken;
@@ -19,6 +20,7 @@ public class PolizProcessor {
 
     public PolizProcessor(List<Token> srcPoliz) {
         varMap = new HashMap<String, Integer>();
+        varMapStruct = new HashMap<String, HashMap<String, Integer>>();
 //        varMap = new HashMap<Integer, HashMap>();
 //        varMap.put(0, new HashMap<String, Integer>());
 //        currentFBrackets = 0;
@@ -29,69 +31,75 @@ public class PolizProcessor {
     public void calcPoliz() throws Exception {
         index = 0;
         size = this.poliz.size();
-        while (index < size) {
+        boolean isStruct = false;
+        boolean isStructHead = false;
+        String currStructName = "";
+        
+         while (index < size) {
             currentToken = this.poliz.get(index);
-            switch (currentToken.getName()) {
-                case Lexer.DIGIT:
-                case Lexer.ADRESS:
+            if (currentToken.getName().equals(Lexer.DIGIT) || currentToken.getName().equals(Lexer.ADRESS)) {
+                if(isStructHead) {
+                    currStructName = poliz.get(index + 1).getValue();
+                    isStructHead = false;
+                } else {
                     stack.push(Integer.parseInt(currentToken.getValue()));
-                    break;
-                case Lexer.VAR_NAME:
-                    stack.push(currentToken.getValue());
-                    break;
-                case Lexer.ASSIGN_OP:
+                }
+            } else if (currentToken.getName().equals(Lexer.VAR_NAME)) {
+                stack.push(currentToken.getValue());
+            } else if (currentToken.getName().equals(Lexer.ASSIGN_OP)) {
+                if (isStructHead) {
+                    currStructName = (String) stack.pop();
+                    varMapStruct.put(currStructName, new HashMap<String, Integer>());
+                } else if (isStruct) {
                     tmpValue1 = getOperand(stack.pop());
-//                    varMap.get(currentFBrackets).put((String) stack.pop(), tmpValue1);
-                    varMap.put((String) stack.pop(), tmpValue1);
-                    break;
-                case Lexer.ADD_OP:
-                    stack.push(getOperand(stack.pop()) + getOperand(stack.pop()));
-                    break;
-                case Lexer.DEC_OP:
+                    varMapStruct.get(currStructName).put((String) stack.pop(), tmpValue1);
+                } else {
                     tmpValue1 = getOperand(stack.pop());
-                    stack.push(getOperand(stack.pop()) - tmpValue1);
-                    break;
-                case Lexer.MULTI_OP:
-                    stack.push(getOperand(stack.pop()) * getOperand(stack.pop()));
-                    break;
-                case Lexer.DIV_OP:
-                    tmpValue1 = getOperand(stack.pop());
-                    stack.push(getOperand(stack.pop())/ tmpValue1);
-                    break;
-                case Lexer.LESS_OP:
-                    stack.push(getOperand(stack.pop()) > getOperand(stack.pop()));
-                    break;
-                case Lexer.LARGER_OP:
-                    stack.push(getOperand(stack.pop()) < getOperand(stack.pop()));
-                    break;
-                case Lexer.EQUAL_OP:
-                    stack.push(getOperand(stack.pop()) == getOperand(stack.pop()));
-                    break;
-                case Lexer.NOT_EQUAL_OP:
-                    stack.push(getOperand(stack.pop()) != getOperand(stack.pop()));
-                    break;
-                case Lexer.LESS_N_EQUAL_OP:
-                    stack.push(getOperand(stack.pop()) >= getOperand(stack.pop()));
-                    break;
-                case Lexer.LARGE_N_EQUAL_OP:
-                    stack.push(getOperand(stack.pop()) <= getOperand(stack.pop()));
-                    break;
-                case Lexer.FGO:
-                    tmpValue1 = (Integer) stack.pop();
-                    if (!(boolean)stack.pop()) {
-                        index = tmpValue1;
-                    }
-                    break;
-                case Lexer.GO:
-                    index = (Integer)stack.pop();
-                    break;
-//                case Lexer.FO
+                    varMap.put((String) stack.pop(), tmpValue1);    
+                }
+            } else if (currentToken.getName().equals(Lexer.ADD_OP)) {
+                stack.push(getOperand(stack.pop()) + getOperand(stack.pop()));
+            } else if (currentToken.getName().equals(Lexer.DEC_OP)) {
+                tmpValue1 = getOperand(stack.pop());
+                stack.push(getOperand(stack.pop()) - tmpValue1);
+            } else if (currentToken.getName().equals(Lexer.MULTI_OP)) {
+                stack.push(getOperand(stack.pop()) * getOperand(stack.pop()));
+            } else if (currentToken.getName().equals(Lexer.DIV_OP)) {
+            	tmpValue1 = getOperand(stack.pop());
+                stack.push(getOperand(stack.pop())/ tmpValue1);
+            } else if (currentToken.getName().equals(Lexer.LESS_OP)) {
+            	stack.push(getOperand(stack.pop()) > getOperand(stack.pop()));
+            } else if (currentToken.getName().equals(Lexer.LARGER_OP)) {
+            	stack.push(getOperand(stack.pop()) < getOperand(stack.pop()));
+            } else if (currentToken.getName().equals(Lexer.EQUAL_OP)) {
+            	stack.push(getOperand(stack.pop()) == getOperand(stack.pop()));
+            } else if (currentToken.getName().equals(Lexer.NOT_EQUAL_OP)) {
+            	stack.push(getOperand(stack.pop()) != getOperand(stack.pop()));
+            } else if (currentToken.getName().equals(Lexer.LESS_N_EQUAL_OP)) {
+            	stack.push(getOperand(stack.pop()) >= getOperand(stack.pop()));
+            } else if (currentToken.getName().equals(Lexer.LARGE_N_EQUAL_OP)) {
+            	stack.push(getOperand(stack.pop()) <= getOperand(stack.pop()));
+            } else if (currentToken.getName().equals(Lexer.FGO)) {
+            	tmpValue1 = (Integer) stack.pop();
+                if (!(Boolean) stack.pop()) {
+                    index = tmpValue1;
+                }
+            } else if (currentToken.getName().equals(Lexer.GO)) {
+            	index = (Integer)stack.pop();
+            } else if (currentToken.getName().equals(Lexer.STRUCT_KW)) {
+                 isStruct = true;
+                 isStructHead = true;
+            } else if (currentToken.getName().equals(Lexer.F_BRACKET_OPEN) && isStructHead) {
+                isStructHead = false;
+            } else if (currentToken.getName().equals(Lexer.F_BRACKET_CLOSE) && isStruct) {
+                isStruct = false;
             }
-//                        System.out.println(currentToken);
-//			System.out.println(stack);
+//			System.out.println(currentToken+" - "+stack);
             index++;
         }
+
         System.out.print("\n\nvar map:" + varMap);
+        System.out.print("\n\nvar map struct:" + varMapStruct);
     }
 
     private int getOperand(Object tmp) throws Exception {

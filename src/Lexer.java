@@ -42,6 +42,8 @@ public class Lexer {
     public static final String GO = "GO";
     public static final String ADRESS = "ADRESS";
     public static final String CL = "CL";
+    public static final String STRUCT_KW = "STRUCT_KW";
+    public static final String DOT_OP = "DOT_OP";
     
     
     String accum = "";
@@ -52,6 +54,7 @@ public class Lexer {
     private Pattern switch_kw = Pattern.compile("^switch$");
     private Pattern case_kw = Pattern.compile("^case$");
     private Pattern break_kw = Pattern.compile("^break$");
+    private Pattern structKw = Pattern.compile("^struct$");
     private Pattern assign_op = Pattern.compile("^=$");
     //private Pattern op = Pattern.compile("^'-'|'+'|'/'|'*'$");
     private Pattern addOp = Pattern.compile("^\\+$");
@@ -73,6 +76,7 @@ public class Lexer {
     private Pattern fBracketClose = Pattern.compile("^\\}$");
     private Pattern nl = Pattern.compile("^\n$");
     private Pattern cl = Pattern.compile("^:$");
+    private Pattern dotOp = Pattern.compile("^\\.$");
 
     private Map<String, Pattern> keyWordsMap = new HashMap<String, Pattern>();
     private Map<String, Pattern> regularTerminals = new HashMap<String, Pattern>();
@@ -90,6 +94,7 @@ public class Lexer {
         keyWordsMap.put(Lexer.SWITCH_KW, switch_kw);
         keyWordsMap.put(Lexer.CASE_KW, case_kw);
         keyWordsMap.put(Lexer.BREAK_KW, break_kw);
+        keyWordsMap.put(Lexer.STRUCT_KW, structKw);
         regularTerminals.put(Lexer.SM, sm);
         regularTerminals.put(Lexer.ASSIGN_OP, assign_op);
 //		regularTerminals.put("OP", op);
@@ -112,6 +117,7 @@ public class Lexer {
         regularTerminals.put(Lexer.F_BRACKET_CLOSE, fBracketClose);
         regularTerminals.put(Lexer.NL, nl);
         regularTerminals.put(Lexer.CL, cl);
+        regularTerminals.put(Lexer.DOT_OP, dotOp);
     }
 
     public void processFile(String fileName) throws IOException {
