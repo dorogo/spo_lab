@@ -1,19 +1,34 @@
 struct a = {
-a = 0;
+a = 5;
+c =3;
 b = 1;
 }
 struct b = {
-a = 1;
-b = 2;
+a = 10;
+b = 20;
+c = 3;
 }
-var value;
-var count;
+struct c = {
+a = 10;
+b = 20;
+c = 3;
+}
+e = a + b;
+f = a * b;
+
+struct g = {
+a = 10;
+b = 20;
+}
+
+qweqwe = a.b + b.b - a.c;
+g.a = 120 - 100*a.b  + a.a;
 value = 1;
 count = 2;
 t = 0;
 i = 0;
 w = 0;
-for (i; i < 3 ; i = i +1 ) {
+for (i ; i < a.c ; i = i +1 ) {
     t = t + 1;
     for(q =0 ; q <= 2; q = q +1 ) {
         w = w - 1;

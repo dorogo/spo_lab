@@ -1,29 +1,21 @@
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Stack;
-import sun.misc.Queue;
 
 public class Parser {
 
     private List<Token> tokens;
-    private ListIterator<Token> iteratorTokens;
+    private MyIterator<Token> iteratorTokens;
     private Token currentToken;
-    private Token prevToken;
     private boolean forCompleted = false;
     private boolean switchCompleted = false;
     private boolean structCompleted = false;
-    private boolean isForHead = false;
 
     public void setTokens(List<Token> tokens) {
         this.tokens = tokens;
-//        for (Token t : tokens) {
-//            System.out.println(t.getValue());
-//        }
-        iteratorTokens = this.tokens.listIterator();
+        iteratorTokens = new MyIterator<>(tokens.listIterator());
     }
 
     public void lang() throws Exception {
@@ -213,10 +205,8 @@ public class Parser {
 
     private boolean forExpr() throws Exception {
         if (forKw()) {
-            isForHead = true;
             nextToken();
             if (forHead()) {
-                isForHead = false;
                 nextToken();
                 if (forBody()) {
 //                    nextToken();
@@ -234,8 +224,6 @@ public class Parser {
             nextToken();
             if (smthUnit()) {
                 assign();
-//                nextToken();
-                System.out.println("__________Parser.forHead()"+currentToken.getName());
                 if (sm()) {
                     nextToken();
                     if (forLimit()) {
@@ -329,7 +317,10 @@ public class Parser {
     }
 
     private boolean assign() throws Exception {
-        if (varName()) {
+        if (smthUnit()) {
+            if (digit()) {
+                throw new Exception("\n\t\tError at line:" + currentToken.getNumLine() + ". Digit is not aviable like var name.");
+            }
             nextToken();
             if (assignOp()) {
                 nextToken();
@@ -410,33 +401,23 @@ public class Parser {
     }
 
     private boolean smthUnit() throws Exception{
-//        if (digit()) {
-//            
-//        } else if (varName()) {
-////            if (!isForHead) {
-//                nextToken();
-//                if(dotOp()) {
-//                    nextToken();
-//                    if(!varName()){
-//                        throw new Exception("\n\t\tError at line:" + currentToken.getNumLine()
-//                                    + ".\n\t\t \"varName\" expected, but \"" + currentToken.getValue() + "\" found.");
-//                    }
-//                } else if (iteratorTokens.hasPrevious()) {
-////                    System.out.println("Parser.smthUnit()prev"+iteratorTokens.previous());
-////                        currentToken = iteratorTokens.previous();
-//                    do {
-//                        currentToken = iteratorTokens.previous();
-//                        System.out.println("Parser.smthUnit()"+currentToken);
-//                    } while (iteratorTokens.hasPrevious()&& currentToken.getName().equals(Lexer.WS));
-//                    
-//                }
-////            }
-//        } else {
-//            return false;
-//        }
-//        System.out.println("Parser.smthUnit()"+currentToken.getName());
-//        return true;
-        return (currentToken.getName().equals(Lexer.DIGIT) || currentToken.getName().equals(Lexer.VAR_NAME));
+        if (varName()) {
+                nextToken();
+                if(dotOp()) {
+                    nextToken();
+                    if(!varName()){
+                        throw new Exception("\n\t\tError at line:" + currentToken.getNumLine()
+                                    + ".\n\t\t \"varName\" expected, but \"" + currentToken.getValue() + "\" found.");
+                    }
+                } else if (iteratorTokens.hasPrevious()) {
+                    do {
+                        currentToken = iteratorTokens.previous();
+                    } while (iteratorTokens.hasPrevious()&& currentToken.getName().equals(Lexer.WS));
+                }
+        } else if (!digit()) {
+            return false;
+        }
+        return true;
     }
     
     
@@ -508,12 +489,10 @@ public class Parser {
     }
     
     private boolean nextToken() throws Exception {
-        prevToken = currentToken;
         if (iteratorTokens.hasNext()) {
             do {
                 currentToken = iteratorTokens.next();
             } while (iteratorTokens.hasNext() && currentToken.getName().equals(Lexer.WS));
-            System.out.println(currentToken);
             return true;
         }
         return false;
@@ -534,24 +513,27 @@ public class Parser {
         int countCases = 0;
         
         int lastOpPriority = 0;
-        iteratorTokens = this.tokens.listIterator();
+        iteratorTokens = new MyIterator<>(tokens.listIterator());
 
         while (nextToken()) {
             if (digit() || varName()) {
                 poliz.add(currentToken);
-            } else if (op() || assignOp() || comparingOp()) {
-                if (!stack.empty()) {
-                    while (currentToken.getOpPriority() <= lastOpPriority) {
+            } else if (op() || assignOp() || comparingOp() || dotOp()) {
+                
+                    while (!stack.empty() && (currentToken.getOpPriority() <= lastOpPriority)) {
                         poliz.add(stack.pop());
-                        lastOpPriority = stack.peek().getOpPriority();
+                        if (!stack.empty()) {
+                            lastOpPriority = stack.peek().getOpPriority();
+                        } 
                     }
-                }
+                
                 stack.push(currentToken);
                 lastOpPriority = currentToken.getOpPriority();
             } else if (sm()) {
                 while (!stack.empty() && !stack.peek().getName().equals(Lexer.BRACKET_OPEN)) {
                     poliz.add(stack.pop());
                 }
+                lastOpPriority = -1;
                 if (searchAdrAfterLimitFor){
                     searchAdrAfterLimitFor = false;
                     poliz.add(new Token(Lexer.ADRESS, "0", -1));
@@ -636,8 +618,6 @@ public class Parser {
             System.out.print(poliz.get(q).getValue());
 
         }
-        System.out.println("\nadr"+adrStack);
         return poliz;
     }
-
 }

@@ -28,9 +28,9 @@ public class Test {
         Parser parser = new Parser();
         parser.setTokens(tokens);
         parser.lang();
-//        List<Token> tokensPoliz = parser.getPoliz();
-//        PolizProcessor polizProc = new PolizProcessor(tokensPoliz);
-//        polizProc.calcPoliz();
+        List<Token> tokensPoliz = parser.getPoliz();
+        PolizProcessor polizProc = new PolizProcessor(tokensPoliz);
+        polizProc.calcPoliz();
         
     }
 }
